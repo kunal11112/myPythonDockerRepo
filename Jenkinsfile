@@ -33,15 +33,10 @@ pipeline {
         
         stage('K8S Deploy') {
             steps {   
-                script {
-                    withKubeConfig([credentialsId: 'K8S', serverUrl: '']) {
-                        echo "Current build number is: ${env.BUILD_ID}"
-                        // Replace the placeholders in the deployment.yaml file 
-                        sh """
-                        sed -i 's/\\${BUILD_NUMBER}/${env.BUILD_ID}/g' k8s-deployment.yaml
-                        """ 
-                        sh 'kubectl apply -f k8s-deployment.yaml -n springboot-app-ns'
-                    }
+                 withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: 'k8s', contextName: '', credentialsId: 'SECRET_TOKEN', namespace: 'default', serverUrl: 'https://3.93.73.131:6443']]) {
+          sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
+          sh 'chmod u+x ./kubectl'  
+          sh './kubectl get nodes'
                 }
             }
         }

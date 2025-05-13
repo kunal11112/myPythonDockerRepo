@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        registry = "kunal1996/pyhtonapp/"
+        registry = "kunal1996/pythonapp" // Corrected the image name
     }
     stages {
         stage('checkout') {
@@ -14,14 +14,13 @@ pipeline {
         stage('build image') {
             steps {
                 script {
-                    dockerImage = docker.build registry
-                    dockerImage.tag("${env.BUILD_NUMBER}")
+                    dockerImage = docker.build("${registry}:${env.BUILD_NUMBER}")
                 }
             }
         }
         
         stage('upload dockerhub') {
-            environment {
+            {
                 registryCredential = 'dockerhub'
             }
             steps {

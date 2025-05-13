@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        registry = "account_id.dkr.ecr.us-east-1.amazonaws.com/coachak/my-docker-repo"
+        registry = "kunal1996/pyhtonapp/"
     }
     stages {
         stage('checkout') {
@@ -21,11 +21,11 @@ pipeline {
                 }
         }
         
-        stage ("upload ECR") {
+        stage ("upload dockerhub") {
             steps {
                 script {
-                    sh "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin account_id.dkr.ecr.us-east-2.amazonaws.com"
-                sh 'docker push account_id.dkr.ecr.us-east-1.amazonaws.com/coachak/my-docker-repo:$BUILD_NUMBER'
+                sh  'docker login --username kunal1996 --password-stdin dockerhub"
+                sh 'docker push kunal1996/pyhtonapp/:$BUILD_NUMBER'
                 }
             }
         }

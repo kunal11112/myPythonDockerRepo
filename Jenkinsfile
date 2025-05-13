@@ -24,8 +24,12 @@ pipeline {
         stage ("upload dockerhub") {
             steps {
                 script {
-                sh  'docker login --username kunal1996 --password-stdin dockerhub"
-                sh 'docker push kunal1996/pyhtonapp/:$BUILD_NUMBER'
+                withCredentials([usernamePassword(credentialsId: DOCKERHUBCREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                  sh """
+                  echo "DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                  docker push kunal1996/pyhtonapp/:$BUILD_NUMBER'
+                  docker logout
+                  """
                 }
             }
         }

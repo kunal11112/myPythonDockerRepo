@@ -22,14 +22,14 @@ pipeline {
         }
         
         stage ("upload dockerhub") {
-            steps {
-                script {
-                withCredentials([usernamePassword(credentialsId: DOCKERHUBCREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                  sh """
-                  echo "DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                  docker push kunal1996/pyhtonapp/:$BUILD_NUMBER'
-                  docker logout
-                  """
+          environment {
+                registryCredential = 'dockerhub'
+                }
+          steps{
+            script {
+                docker.withRegistry( 'https://registry.hub.docker.com', registryCredentials ) {
+                   dockerImage.push("latest")
+                   }
                 }
             }
         }

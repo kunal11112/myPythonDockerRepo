@@ -37,8 +37,7 @@ pipeline {
                  sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
                  sh 'chmod u+x ./kubectl'  
                  sh './kubectl get nodes'
-                 sh 'sed -i 's/\${BUILD_NUMBER}/${env.BUILD_ID}/g' k8s-deployment.yaml'
-                 sh ('kubectl apply -f  k8s-deployment.yaml -n springboot-app-ns')
+                 sh './kubectl apply -f  k8s-deployment.yaml -n springboot-app-ns'
                 }
             }
         }

@@ -2,7 +2,7 @@ pipeline {
     agent any
         environment {
         //once you sign up for Docker hub, use that user_id here
-        registry = "ananthkannan/mypython-app-may20"
+        registry = "kunal1996/mypython-app-may20"
         //- update your credentials ID after creating credentials for connecting to Docker Hub
         registryCredential = 'dockerhub'
         dockerImage = ''
@@ -11,7 +11,7 @@ pipeline {
 
         stage ('checkout') {
             steps {
-            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/akannan1087/myPythonDockerRepo']]])
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/kunal11112/myPythonDockerRepo']]])
             }
         }
        

@@ -1,6 +1,5 @@
 pipeline {
     agent any
-
     environment {
         registry = "kunal1996/pythonapp" // Corrected the image name
     }
@@ -20,12 +19,12 @@ pipeline {
         }
         
         stage('upload dockerhub') {
-            {
+            environment {
                 registryCredential = 'dockerhub'
             }
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', registryCredential) {
+                    docker.withRegistry('https://registry.hub.docker.com', registryCredential) { registry ->
                         dockerImage.push("latest")
                     }
                 }

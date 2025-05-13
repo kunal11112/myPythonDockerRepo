@@ -1,65 +1,49 @@
 pipeline {
     agent any
-        environment {
-        //once you sign up for Docker hub, use that user_id here
-        registry = "kunal1996/mypython-app-may20"
-        //- update your credentials ID after creating credentials for connecting to Docker Hub
-        registryCredential = 'dockerhub'
-        dockerImage = ''
+
+    environment {
+        registry = "account_id.dkr.ecr.us-east-1.amazonaws.com/coachak/my-docker-repo"
     }
     stages {
-
-        stage ('checkout') {
+        stage('checkout') {
             steps {
-            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/kunal11112/myPythonDockerRepo']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/akannan1087/myPythonDockerRepo']]])
             }
         }
-       
-        stage ('Build docker image') {
+        
+        stage ("build image") 
+        {
             steps {
                 script {
-                dockerImage = docker.build registry + ":$BUILD_NUMBER"
-                //dockerImage = docker.build registry + ":$BUILD_NUMBER"
-
+                    dockerImage = docker.build registry
+                      dockerImage.tag("$BUILD_NUMBER")
+                    }
+                }
+        }
+        
+        stage ("upload ECR") {
+            steps {
+                script {
+                    sh "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin account_id.dkr.ecr.us-east-2.amazonaws.com"
+                sh 'docker push account_id.dkr.ecr.us-east-1.amazonaws.com/coachak/my-docker-repo:$BUILD_NUMBER'
                 }
             }
         }
-       
-         // Uploading Docker images into Docker Hub
-    stage('Upload Image') {
-     steps{   
-         script {
-            docker.withRegistry( '', registryCredential ) {
-            dockerImage.push()
-            }
-        }
-      }
-    }
-
-    stage('Remove Unused docker image') {
-      steps{
-        sh "docker rmi $registry:$BUILD_NUMBER"
-      }
-    }
-   
-    stage ('K8S Deploy') {
-        steps {
+        
+    // Avoid latest tag image and pass build ID dynamically from Jenkins pipeline
+       stage('K8S Deploy') {
+        steps{   
             script {
-                kubernetesDeploy(
-                    configs: 'k8s-deployment.yaml',
-                    kubeconfigId: 'K8S',
-                    enableConfigSubstitution: true
-                    )           
-               
+                withKubeConfig([credentialsId: 'K8S', serverUrl: '']) {
+                echo "Current build number is: ${env.BUILD_ID}"
+               // Replace the placeholders in the deployment.yaml file 
+                sh """ 
+                sed -i 's/\${BUILD_NUMBER}/${env.BUILD_ID}/g' k8s-deployment.yaml
+                """ 
+                sh ('kubectl apply -f  k8s-deployment.yaml -n springboot-app-ns')
+                }
             }
         }
-    }
-  
-    }  
-}
-
-always {
-  // remove built docker image and prune system
-  print 'Cleaning up the Docker system.'
-  sh 'docker system prune -f'
+       }
+    }    
 }

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-python-app-deployment
+  name: my-python-new-deployment
   namespace: springboot-app-ns     # Namespace where the deployment will be created
 spec:
   replicas: 3
